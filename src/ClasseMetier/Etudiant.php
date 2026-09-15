@@ -84,7 +84,17 @@ class Etudiant
      */
     public static function getListe(): array
     {
+        $sql = <<<SQL
+            select
+                id,
+                concat(nom, ' ', prenom) as nomPrenom
+            from etudiant
+            order by nom, prenom
+        SQL;
 
+        $select = new Select();
+
+        return $select->getRows($sql);
     }
 
 
@@ -97,7 +107,35 @@ class Etudiant
      */
     public static function getById(int $id): array
     {
+        $sql = <<<SQL
+            select
+                etudiant.id,
+                nom,
+                prenom,
+                concat(nom, ' ', prenom) as nomPrenom,
+                dateNaissance,
+                date_format(dateNaissance, '%d/%m/%Y') as dateNaissanceFr,
+                sexe,
+                libelleCourt,
+                photo
+            from etudiant
+                join options on etudiant.idOption = options.id
+            where etudiant.id = :id
+        SQL;
 
+        $select = new Select();
+
+        $ligne = $select->getRow($sql, ['id' => $id]);
+
+        if ($ligne === null) {
+            return [];
+        }
+
+        $ligne['present'] =
+            isset($ligne['photo'])
+            && is_file(self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']);
+
+        return $ligne;
     }
 
 
@@ -112,8 +150,33 @@ class Etudiant
      */
     public static function getByNomPrenom(string $nomPrenom): array
     {
+        $sql = <<<SQL
+            select
+                etudiant.id,
+                nom,
+                prenom,
+                concat(nom, ' ', prenom) as nomPrenom,
+                dateNaissance,
+                date_format(dateNaissance, '%d/%m/%Y') as dateNaissanceFr,
+                sexe,
+                libelleCourt,
+                photo
+            from etudiant
+                join options on etudiant.idOption = options.id
+            where concat(nom, ' ', prenom) like :nomPrenom
+            order by nom, prenom
+        SQL;
 
+        $select = new Select();
+
+        $lignes = $select->getRows($sql, ['nomPrenom' => '%' . $nomPrenom . '%']);
+
+        foreach ($lignes as &$ligne) {
+            $ligne['present'] =
+                isset($ligne['photo'])
+                && is_file(self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']);
+        }
+
+        return $lignes;
     }
-
-
 }
