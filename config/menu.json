@@ -1,0 +1,61 @@
+{
+  "brand": {
+    "label": "Évaluation",
+    "href": "/",
+    "icon": "/css/logo.png"
+  },
+
+  "items": [
+    {
+      "label": "Consultation",
+      "children": [
+        {
+          "label": "Liste des étudiants",
+          "href": "/liste"
+        },
+        {
+          "label": "Trombinoscope des étudiants",
+          "href": "/trombinoscope"
+        }
+      ]
+    },
+    {
+      "label": "Recherche",
+      "children": [
+        {
+          "label": "Fiche étudiant",
+          "href": "/fiche"
+        },
+        {
+          "label": "Fiche étudiant (V1)",
+          "href": "/fiche1"
+        },
+        {
+          "label": "Fiche étudiant (V2)",
+          "href": "/fiche2"
+        }
+      ]
+    },
+    {
+      "label": "Gestion",
+      "children": [
+        {
+          "label": "Ajouter un étudiant",
+          "href": "/ajout"
+        },
+        {
+          "label": "Modifier les informations signalétiques d'un étudiant",
+          "href": "/maj"
+        },
+        {
+          "label": "Définir l'option choisie",
+          "href": "/majoption"
+        },
+        {
+          "label": "Suppression d'un étudiant",
+          "href": "/suppression"
+        }
+      ]
+    }
+  ]
+}

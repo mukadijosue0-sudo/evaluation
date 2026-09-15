@@ -1,0 +1,86 @@
+<style>
+    /* Conteneur des cartes */
+    #lesCartes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: flex-start;
+    }
+
+    /* Carte étudiant */
+    .carte-etudiant {
+        flex-grow: 0;
+        flex-shrink: 1;
+        flex-basis: 120px;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /* En-tête de la carte */
+    .carte-header {
+        height: 55px;
+        padding: 0.35rem;
+        background-color: var(--entete-bg-start);
+        color: #ffffff;
+        font-size: 0.5rem;
+        line-height: 1.1;
+    }
+
+    /* Corps de la carte */
+    .carte-body {
+        height: 55px;
+        padding: 0.25rem;
+    }
+
+    /* Image de l'étudiant */
+    .carte-img {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+        margin: 0 auto;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    /* Adaptation des cartes sur petit écran */
+    @media screen and (max-width: 600px) {
+        .carte-etudiant {
+            flex-basis: 120px;
+        }
+    }
+</style>
+
+
+
+<div class="page-card">
+    <header class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Trombinoscope des étudiants
+            </h1>
+            <div class="page-header-actions">
+                <button id="btnPdf" class="btn bts-sm btn-danger m-3">
+                    🖨️ (PDF)
+                </button>
+            </div>
+        </div>
+    </header>
+    <div class="page-body">
+        <div id="pdfContent">
+            <div id="lesCartes"></div>
+        </div>
+    </div>
+</div>
+
+
+<template id="tplCarteEtudiant">
+    <div class="card carte-etudiant shadow-sm">
+        <div class="card-header text-center carte-header"></div>
+        <div class="card-body carte-body">
+            <img class="carte-img" src="" alt="">
+        </div>
+        <div class="card-footer text-muted text-center carte-footer"></div>
+    </div>
+</template>
+
+

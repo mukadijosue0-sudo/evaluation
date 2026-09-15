@@ -1,0 +1,60 @@
+<div class="page-card">
+    <div class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Nouvel étudiant
+            </h1>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="formulaire">
+            <div id="msg"></div>
+            <!-- Nom -->
+            <label for="nom" class="obligatoire">
+                Nom <span
+                    class='commentaire'>(30 caractères maximum, caractères autorisés : lettres non accentuées et espace)</span>
+            </label>
+            <input id="nom"
+                   type="text"
+                   required
+                   pattern="^[A-Za-z]( ?[A-Za-z])*$"
+                   maxlength="30"
+                   minlength="3"
+                   style="width:300px"
+            >
+
+            <!-- Prénom -->
+            <label for="prenom" class="obligatoire">
+                Prénom <span class='commentaire'>(30 caractères maximum, caractères autorisés : lettres accentuées, espace, apostrophe et tiret)</span>
+            </label>
+            <input id="prenom"
+                   type="text"
+                   required
+                   pattern="^[a-zA-ZÀ-ÖØ-öø-ÿœŒ]+([ '\-][a-zA-ZÀ-ÖØ-öø-ÿœŒ]+)*$"
+                   maxlength="30"
+                   minlength="3"
+                   style="width:300px"
+            >
+            <!-- Sexe -->
+            <label for="sexe">Sexe</label>
+            <select id="sexe" style="display : block; width: 150px">
+                <option value="M">Homme</option>
+                <option value="F">Femme</option>
+            </select>
+
+            <!-- Date de naissance -->
+            <label for="dateNaissance">Date de naissance</label>
+            <input id="dateNaissance" type="date" required>
+
+            <!-- idOption -->
+            <label for="idOption" class="obligatoire">Option</label>
+            <select id="idOption"></select>
+
+
+            <div class="d-flex justify-content-evenly mt-3">
+                <button id="btnAjouter" class="btn btn-outline-danger">✚ Ajouter</button>
+            </div>
+        </div>
+
+    </div>
+</div>

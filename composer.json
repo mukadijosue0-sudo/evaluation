@@ -1,0 +1,13 @@
+{
+  "autoload": {
+    "psr-4": {
+      "ClasseTechnique\\": "src/ClasseTechnique/",
+      "ClasseMetier\\": "src/ClasseMetier/"
+    }
+  },
+  "require": {
+    "ext-pdo": "*",
+    "ext-intl": "*",
+    "ext-curl": "*"
+  }
+}

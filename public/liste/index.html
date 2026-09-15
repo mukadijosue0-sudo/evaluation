@@ -1,0 +1,307 @@
+<style>
+    /* ============================================================
+       BARRE / CONTENEUR DU TABLEAU
+       ============================================================ */
+
+    .eleve-table-wrapper {
+        width: 100%;
+        border: 1px solid #dbe4ef;
+        background: #fff;
+        box-shadow: 0 6px 18px rgba(33, 78, 120, 0.08);
+        max-height: 72vh;
+        overflow: auto;
+    }
+
+
+    /* ============================================================
+       TABLEAU
+       ============================================================ */
+
+    .eleve-table {
+        width: 100%;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+
+
+    /* ============================================================
+       EN-TÊTE
+       ============================================================ */
+
+    .eleve-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+
+        background: #0f7df5;
+        color: #fff;
+
+        font-weight: 600;
+        letter-spacing: 0.2px;
+
+        white-space: nowrap;
+
+        padding: 10px 12px;
+
+        border: 0;
+        border-bottom: 2px solid #0b6fdc;
+
+        vertical-align: middle;
+    }
+
+
+    /* ============================================================
+       CELLULES
+       ============================================================ */
+
+    .eleve-table tbody td {
+        padding: 10px 12px;
+        vertical-align: middle;
+
+        border-top: 1px solid #edf2f8;
+
+        color: #2c3e50;
+        background-color: #fff;
+    }
+
+
+    /* ============================================================
+       ALTERNANCE DES LIGNES
+       ============================================================ */
+
+    .eleve-table tbody tr:nth-child(even) td {
+        background-color: #f8fbff;
+    }
+
+
+    /* ============================================================
+       SURVOL
+       ============================================================ */
+
+    .eleve-table tbody tr:hover td {
+        background-color: #eaf3ff;
+    }
+
+
+    /* ============================================================
+       LARGEURS DES COLONNES
+       ============================================================ */
+
+    .eleve-table th:nth-child(1),
+    .eleve-table td:nth-child(1) {
+        width: 300px;
+        text-align: left;
+    }
+
+    .eleve-table th:nth-child(2),
+    .eleve-table td:nth-child(2) {
+        width: 50px;
+        text-align: center;
+    }
+
+    .eleve-table th:nth-child(3),
+    .eleve-table td:nth-child(3) {
+        width: 100px;
+        text-align: center;
+    }
+
+    .eleve-table th:nth-child(4),
+    .eleve-table td:nth-child(4) {
+        width: 150px;
+        text-align: center;
+    }
+
+    .eleve-table th:nth-child(5),
+    .eleve-table td:nth-child(5) {
+        width: 150px;
+        text-align: center;
+    }
+
+
+    /* ============================================================
+       PHOTOGRAPHIE
+       ============================================================ */
+
+    .eleve-table td img {
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        object-fit: cover;
+        display: block;
+        margin: 0 auto;
+    }
+
+
+    /* ============================================================
+       MOBILE
+
+       Sur smartphone :
+       - Sexe est masqué
+       - Date de naissance est masquée
+
+       Nom/prénom et Option restent visibles.
+       ============================================================ */
+
+    @media (max-width: 768px) {
+
+        .eleve-table-wrapper {
+            max-height: 70vh;
+            overflow-x: auto;
+        }
+
+        .eleve-table {
+            min-width: 0;
+            width: 100%;
+        }
+
+
+        /* --------------------------------------------------------
+           Sexe
+           -------------------------------------------------------- */
+
+        .eleve-table th.col-sexe,
+        .eleve-table td.col-sexe {
+            display: none;
+        }
+
+
+        /* --------------------------------------------------------
+           Date de naissance
+           -------------------------------------------------------- */
+
+        .eleve-table th.col-naissance,
+        .eleve-table td.col-naissance {
+            display: none;
+        }
+
+
+        /* --------------------------------------------------------
+           Nom / prénom prend la place restante
+           -------------------------------------------------------- */
+
+        .eleve-table th:nth-child(1),
+        .eleve-table td:nth-child(1) {
+            width: auto;
+        }
+
+
+        /* --------------------------------------------------------
+           Largeur de l'option
+           -------------------------------------------------------- */
+
+        .eleve-table th:nth-child(4),
+        .eleve-table td:nth-child(4) {
+            width: 80px;
+        }
+
+
+        /* --------------------------------------------------------
+           Largeur de la photo
+           -------------------------------------------------------- */
+
+        .eleve-table th:nth-child(5),
+        .eleve-table td:nth-child(5) {
+            width: 80px;
+        }
+
+
+        /* --------------------------------------------------------
+           Ligne cliquable
+           -------------------------------------------------------- */
+
+        .eleve-table tbody tr {
+            cursor: pointer;
+        }
+
+
+        /* --------------------------------------------------------
+           Positionnement de l'infobulle
+
+           Le positionnement est effectué sur la première cellule
+           afin d'éviter la création d'une colonne fantôme.
+           -------------------------------------------------------- */
+
+        .eleve-table tbody td:first-child {
+            position: relative;
+        }
+
+
+        /* --------------------------------------------------------
+           Infobulle
+           -------------------------------------------------------- */
+
+        .eleve-table tbody tr:hover td:first-child::after,
+        .eleve-table tbody tr:focus td:first-child::after {
+
+            content: attr(data-details);
+
+            position: absolute;
+            left: 0;
+            top: 100%;
+            z-index: 10;
+
+            width: 250px;
+            max-width: 85vw;
+
+            padding: 10px 14px;
+
+            background-color: #1e293b;
+            color: #ffffff;
+
+            font-size: 0.85rem;
+            line-height: 1.5;
+
+            border-radius: 8px;
+
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+
+            white-space: pre-wrap;
+
+            pointer-events: none;
+        }
+    }
+</style>
+
+
+<div class="page-card">
+    <header class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Liste des élèves
+            </h1>
+        </div>
+    </header>
+    <div class="page-body">
+        <div class="eleve-table-wrapper">
+            <table id="leTableau" class="eleve-table">
+                <thead>
+                <tr>
+                    <th
+                            data-champ="nomPrenom"
+                            data-type="text">
+                        Nom et prénom
+                    </th>
+                    <th class="col-sexe">
+                        Sexe
+                    </th>
+                    <th
+                            data-champ="dateNaissanceFr"
+                            data-type="date"
+                            class="col-naissance">
+                        Né(e) le
+                    </th>
+                    <th
+                            data-champ="libelleCourt"
+                            data-type="text">
+                        Option
+                    </th>
+                    <th>
+                        Photo
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="lesLignes"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
