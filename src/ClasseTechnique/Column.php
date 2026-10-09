@@ -8,19 +8,29 @@ namespace ClasseTechnique;
  * Elle encapsule la valeur, les règles de validation et les contraintes nécessaires aux opérations CRUD.
  *
  * @Author : Guy Verghote
- * @Version 2026.4
- * @Date : 22/09/2026
+ * @Version 2026.3
+ * @Date : 12/08/2026
  */
-
 abstract class Column
 {
+    // La valeur de l'objet
     public mixed $Value = null;
+
+    // La valeur est-elle obligatoire ?
     public readonly bool $Required;
+
+    // La colonne est-elle utilisable lors d'une opération d'ajout ?
     public readonly bool $Insertable;
+
+    // La colonne est-elle utilisable lors d'une opération de modification ?
     public readonly bool $Updatable;
 
+    // message d'erreur associé à la colonne
     protected string $validationMessage;
 
+    /**
+     * Constructeur.
+     */
     public function __construct(bool $required = true, bool $insertable = true, bool $updatable = true)
     {
         $this->Required = $required;
@@ -30,30 +40,19 @@ abstract class Column
         $this->validationMessage = '';
     }
 
+    /**
+     * Accesseur sur le message d'erreur.
+     */
     public function getValidationMessage(): string
     {
         return $this->validationMessage;
     }
 
     /**
-     * Méthode de nettoyage/sanitisation.
-     * À redéfinir dans les sous-classes si nécessaire (ex: ColumnText, ColumnTextarea).
-     */
-    public function sanitize(mixed $value): mixed
-    {
-        return $value;
-    }
-
-    /**
-     * Vérifie que la valeur est renseignée quand la propriété Required est vraie.
+     * Vérifie que la valeur est renseignée quand la propriété Require est vraie.
      */
     public function checkValidity(): bool
     {
-        // Nettoyage automatique avant tout contrôle
-        if ($this->Value !== null) {
-            $this->Value = $this->sanitize($this->Value);
-        }
-
         if ($this->Required && ($this->Value === null || strlen(trim((string)$this->Value)) === 0)) {
             $this->validationMessage = "Veuillez renseigner ce champ.";
             return false;

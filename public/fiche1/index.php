@@ -8,10 +8,7 @@ use ClasseTechnique\Page;
 require $_SERVER['DOCUMENT_ROOT'] . "/../bootstrap/bootstrap.php";
 
 
-// alimentation et affichage de l'interface
 $page = new Page();
-$page->setTitre("Fiche étudiant")
-    ->avecJeton()
+$page->setTitre("Fiche d'un étudiant ")
     ->setDonnee('lesEtudiants', Etudiant::getListe())
     ->afficher();
-

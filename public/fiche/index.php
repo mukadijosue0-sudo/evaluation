@@ -7,11 +7,8 @@ use ClasseTechnique\Page;
 /** @noinspection PhpIncludeInspection */
 require $_SERVER['DOCUMENT_ROOT'] . "/../bootstrap/bootstrap.php";
 
-
-// alimentation et affichage de l'interface
+// toutes les données de tous les étudiants sont chargées une seule fois par le contrôleur
 $page = new Page();
-$page->setTitre("Fiche étudiant")
-    ->avecJeton()
+$page->setTitre("Fiche d'un étudiant ")
     ->setDonnee('lesEtudiants', Etudiant::getAll())
     ->afficher();
-

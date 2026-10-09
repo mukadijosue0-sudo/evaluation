@@ -41,8 +41,8 @@ use PDO;
  *  règles particulières métier.
  *
  * @author Guy Verghote
- * @version 2026.5
- * @date : 22/09/2026
+ * @version 2026.3
+ * @date : 12/08/2026
  */
 abstract class Table
 {
@@ -60,6 +60,9 @@ abstract class Table
 
     // Liste des objets Column représentant les colonnes.
     private array $columns = [];
+
+    // Contraintes d'unicité propres à la classe fille.
+    protected array $uniqueConstraints = [];
 
     // Tableau associatif des Erreurs rencontrées lors des contrôles.
     protected array $errors = [];
@@ -265,6 +268,56 @@ abstract class Table
     }
 
     /**
+     * Vérifie l'existence d'un enregistrement
+     * possédant certaines valeurs.
+     *
+     * Cette méthode permet de gérer les contraintes
+     * d'unicité simples ou composées.
+     *
+     * @param array $values Colonnes et valeurs à rechercher
+     *
+     * @param mixed|null $excludedId
+     *        Identifiant à exclure lors d'une modification.
+     *
+     * @return bool
+     */
+    protected function existsWithValues(array $values, mixed $excludedId = null): bool
+    {
+        // sécurité en cas d'absence de valeur
+        if (empty($values)) {
+            return false;
+        }
+
+        $conditions = [];
+        foreach ($values as $column => $value) {
+            $conditions[] = "$column = :$column";
+        }
+        $sql = "select 1 from {$this->table} where " . implode(' and ', $conditions);
+
+        /*
+         * Lors d'une modification, on ne doit pas trouver l'enregistrement lui-même.
+         *
+         * On ne doit pas considérer cette catégorie comme un doublon d'elle-même.
+         */
+        if ($excludedId !== null) {
+            $sql .= " and {$this->primaryKey} <> :excludedId";
+        }
+        $cmd = $this->db->prepare($sql);
+
+        foreach ($values as $column => $value) {
+            $cmd->bindValue($column, $value);
+        }
+
+        if ($excludedId !== null) {
+            $cmd->bindValue('excludedId', $excludedId);
+        }
+        $cmd->execute();
+        $result = (bool)$cmd->fetch();
+        $cmd->closeCursor();
+        return $result;
+    }
+
+    /**
      * Vérifie que les données reçues sont conformes.
      *
      * Les contrôles réalisés sont :
@@ -308,23 +361,18 @@ abstract class Table
 
         // Validation des valeurs.
         foreach ($data as $column => $value) {
-            if (!isset($this->columns[$column])) {
-                continue;
-            }
-
-            $input = $this->columns[$column];
-
-            // 1. Affectation de la valeur brute
-            $this->setValue($column, $value);
-
-            // 2. Gestion spécifique des champs optionnels vides
-            if (!$input->Required && is_string($value) && trim($value) === '') {
+            // Un champ optionnel vide doit être transmis explicitement à null.
+            if (isset($this->columns[$column]) && !$this->columns[$column]->Required && is_string($value) && trim($value) === '') {
                 $this->addError($column, "Pour un champ optionnel, transmettez null et non une chaîne vide.");
                 $ok = false;
                 continue;
             }
 
-            // 3. checkValidity() exécute sanitize() et valide la valeur nettoyée
+            // alimentation de la valeur transmise dans l'objet Column associé
+            $this->setValue($column, $value);
+            // Récupération de l'objet Column afin d'appliquer sa méthode de validation
+            $input = $this->columns[$column];
+            // contrôle de la valeur par rapport aux règles définies sur l'objet (Require, Pattern etc)
             if (!$input->checkValidity()) {
                 $this->addError($column, $input->getValidationMessage());
                 $ok = false;
@@ -344,7 +392,70 @@ abstract class Table
         // Implémentation par défaut : aucune donnée calculée à préparer
     }
 
+    /**
+     * Ajoute une contrainte d'unicité
+     *
+     * @param ContrainteUnique $constraint
+     * @throws Exception
+     */
+    final protected function addUniqueConstraint(ContrainteUnique $constraint): void
+    {
+        foreach ($constraint->columns as $column) {
+            if (!array_key_exists($column, $this->columns)) {
+                throw new Exception("La colonne '$column' n'existe pas dans la table '{$this->table}'.");
+            }
+        }
+        $this->uniqueConstraints[] = $constraint;
+    }
 
+    /**
+     * Contrôle toutes les contraintes d'unicité.
+     *
+     * Les contraintes sont définies dans la classe fille.
+     *
+     * Exemple :
+     *
+     * protected array $uniqueConstraint =
+     *
+     * [
+     *     [
+     *       'columns'=>['nom'],
+     *       'field'=>'nom',
+     *       'message'=>'Nom déjà utilisé'
+     *     ]
+     * ]
+     *
+     *
+     * Le champ utilisé pour l'erreur n'est volontairement
+     * pas déduit automatiquement.
+     *
+     * Une contrainte peut concerner plusieurs colonnes : nom + prénom + dateNaissance
+     *
+     * Dans ce cas l'erreur sera généralement : global
+     *
+     * @param mixed|null $excludedId
+     *
+     * @return bool
+     */
+    protected function checkUniqueConstraints(mixed $excludedId = null): bool
+    {
+        $ok = true;
+        // Parcours de toutes les contraintes d'unicité définies dans la classe fille
+        foreach ($this->uniqueConstraints as $constraint) {
+            $values = [];
+
+            // récupération des valeurs de chaque colonne composant la contrainte unique
+            foreach ($constraint->columns as $column) {
+                $values[$column] = $this->columns[$column]->Value;
+            }
+            // Vérification de l'existence d'un enregistrement possédant les mêmes valeurs pour les colonnes de la contrainte unique
+            if ($this->existsWithValues($values, $excludedId)) {
+                $this->addError('global', $constraint->message);
+                $ok = false;
+            }
+        }
+        return $ok;
+    }
 
     // ==========================================================
     // Points d'extension pour les classes filles
@@ -546,6 +657,12 @@ abstract class Table
             return false;
         }
 
+
+        // Vérification des contraintes d'unicité
+        if (!$this->checkUniqueConstraints()) {
+            return false;
+        }
+
         // Contrôle métier commun aux opérations d'écriture
         if (!$this->beforeChange()) {
             return false;
@@ -633,6 +750,12 @@ abstract class Table
 
         // Validation des données reçues.
         if (!$this->checkColumns($data, $updateColumns, $isPartialUpdate ? [] : $updateColumns)) {
+            return false;
+        }
+
+        // Vérification des contraintes d'unicité.
+
+        if (!$this->checkUniqueConstraints($id)) {
             return false;
         }
 

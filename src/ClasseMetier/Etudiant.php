@@ -7,11 +7,10 @@ namespace ClasseMetier;
 use ClasseTechnique\ColumnDate;
 use ClasseTechnique\ColumnList;
 use ClasseTechnique\ColumnText;
-use ClasseTechnique\Database;
+use ClasseTechnique\ContrainteUnique;
 use ClasseTechnique\Select;
 use ClasseTechnique\Table;
 use ClasseTechnique\TextCase;
-
 
 /**
  * Gestion des étudiants.
@@ -28,75 +27,13 @@ use ClasseTechnique\TextCase;
  * @author Guy Verghote
  * @version 2026.3
  */
-class Etudiant extends Table
+class Etudiant
 {
     /**
      * Répertoire où sont stockées les photos des étudiants.
      */
     public const string DOSSIER_PHOTO_ETUDIANT = DOSSIER_WWW . '/data/photo/';
 
-
-    /**
-     * Configuration de la table.
-     */
-    protected function configure(): void
-    {
-        $this->table = 'etudiant';
-        $this->primaryKey = 'id';
-
-        // -----------------------------------------------------------------
-        // Nom
-        // -----------------------------------------------------------------
-
-        $this->addColumn('nom', new ColumnText(
-            required: true,
-            pattern: "^[a-zA-Z]+([' \\-]?[a-zA-Z]+)*$",
-            maxLength: 20,
-            casse: TextCase::Upper,
-            supprimerAccent: true
-        ));
-
-
-        // -----------------------------------------------------------------
-        // Prénom
-        // -----------------------------------------------------------------
-
-        $this->addColumn('prenom', new ColumnText(
-            required: true,
-            pattern: "^[a-zA-ZÀ-ÿÂ-üçÇ]+([ '\\-][a-zA-ZÀ-ÿÂ-üçÇ]+)*$",
-            maxLength: 20,
-            supprimerAccent: false
-        ));
-
-        // -----------------------------------------------------------------
-        // Sexe
-        // -----------------------------------------------------------------
-
-        $this->addColumn('sexe', new ColumnList(
-            required: true,
-            values: ['M', 'F']
-        ));
-
-        // -----------------------------------------------------------------
-        // Date de naissance
-        // -----------------------------------------------------------------
-
-        $this->addColumn('dateNaissance', new ColumnDate(
-            required: true,
-            min: date('Y-m-d', strtotime('-25 year')),
-            max: date('Y-m-d', strtotime('-17 year'))
-        ));
-
-        // -----------------------------------------------------------------
-        // Option
-        // -----------------------------------------------------------------
-
-        $this->addColumn('idOption', new ColumnList(
-            required: true,
-            values: Options::getLesIds()
-        ));
-
-    }
 
     /**
      * Retourne l'ensemble des informations sur les étudiants.
@@ -126,7 +63,11 @@ class Etudiant extends Table
         $lignes = $select->getRows($sql);
 
         foreach ($lignes as &$ligne) {
-            $ligne['present'] = isset($ligne['photo'])  && is_file(self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']);
+            $ligne['present'] =
+                isset($ligne['photo'])
+                && is_file(
+                    self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']
+                );
         }
 
         return $lignes;
@@ -146,8 +87,7 @@ class Etudiant extends Table
         $sql = <<<SQL
             select
                 id,
-                concat(nom, ' ', prenom) as nomPrenom,
-                idOption
+                concat(nom, ' ', prenom) as nomPrenom
             from etudiant
             order by nom, prenom
         SQL;
@@ -185,39 +125,17 @@ class Etudiant extends Table
 
         $select = new Select();
 
-        $lignes = $select->getRows(
-            $sql,
-            ['id' => $id]
-        );
+        $ligne = $select->getRow($sql, ['id' => $id]);
 
-        if ($lignes === []) {
+        if ($ligne === null) {
             return [];
         }
 
-        $etudiant = $lignes[0];
+        $ligne['present'] =
+            isset($ligne['photo'])
+            && is_file(self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']);
 
-        $etudiant['present'] =
-            isset($etudiant['photo'])
-            && is_file(
-                self::DOSSIER_PHOTO_ETUDIANT . $etudiant['photo']
-            );
-
-        return $etudiant;
-    }
-
-    /**
-     * Met à jour le nom du fichier photo d'un étudiant.
-     */
-    public static function enregistrerNomPhoto(int $id, ?string $photo): bool
-    {
-        $commande = Database::getInstance()->prepare(
-            'update etudiant set photo = :photo where id = :id'
-        );
-
-        return $commande->execute([
-            'photo' => $photo,
-            'id' => $id
-        ]);
+        return $ligne;
     }
 
 
@@ -245,24 +163,18 @@ class Etudiant extends Table
                 photo
             from etudiant
                 join options on etudiant.idOption = options.id
-            where concat(nom, ' ', prenom) like :terme
-            order by etudiant.nom, etudiant.prenom
-            limit 10
+            where concat(nom, ' ', prenom) like :nomPrenom
+            order by nom, prenom
         SQL;
 
         $select = new Select();
 
-        $lignes = $select->getRows(
-            $sql,
-            ['terme' => "%$nomPrenom%"]
-        );
+        $lignes = $select->getRows($sql, ['nomPrenom' => '%' . $nomPrenom . '%']);
 
         foreach ($lignes as &$ligne) {
             $ligne['present'] =
                 isset($ligne['photo'])
-                && is_file(
-                    self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']
-                );
+                && is_file(self::DOSSIER_PHOTO_ETUDIANT . $ligne['photo']);
         }
 
         return $lignes;

@@ -7,32 +7,19 @@
         </div>
     </div>
     <div class="page-body">
-        <div id="msg"></div>
-        <div id="lesCartes"></div>
+        <div class="formulaire">
+            <div id="msg"></div>
+            <table style="max-width: 450px; margin-top: 20px; margin-left: 0;">
+                <thead>
+                <tr>
+                    <th style="width:30px; color:red; text-align: center"></th>
+                    <th style="width: 400px">Nom et prénom</th>
+                </tr>
+                </thead>
+                <tbody id="lesLignes"></tbody>
+            </table>
+
+
+        </div>
     </div>
 </div>
-
-<template id="tplCarteEtudiant">
-    <div class="carte-etudiant">
-
-        <div class="card-header text-center carte-header">
-            <span class="nom-etudiant">
-                <span class="nom"></span>
-                <span class="prenom"></span>
-            </span>
-
-            <button
-                    class="btn-supprimer"
-                    type="button"
-                    title="Supprimer l'étudiant"
-                    aria-label="Supprimer l'étudiant">
-                ×
-            </button>
-        </div>
-
-        <div class="carte-body">
-            <img class="carte-img" src="" alt="">
-        </div>
-
-    </div>
-</template>

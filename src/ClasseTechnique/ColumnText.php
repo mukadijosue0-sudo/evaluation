@@ -17,11 +17,11 @@ enum TextCase
 }
 
 /**
- * Classe ColumnText : contrôle et nettoie une chaîne de caractères.
+ * Classe ColumnText : contrôle une chaîne de caractères.
  *
  * @author Guy Verghote
- * @version 2026.3
- * @date 22/09/2026
+ * @version 2026.2
+ * @date 12/08/2026
  */
 class ColumnText extends Column
 {
@@ -85,103 +85,6 @@ class ColumnText extends Column
     }
 
     /**
-     * Nettoie et normalise la chaîne avant validation.
-     * Cette méthode est appelée automatiquement par parent::checkValidity().
-     */
-    public function sanitize(mixed $value): mixed
-    {
-        if ($value === null || !is_string($value)) {
-            return $value;
-        }
-
-        // Nettoyage métier initial (titres, caractères invisibles, etc.)
-        $valeur = Std::nettoyerTitre($value);
-
-        // Suppression éventuelle des accents
-        if ($this->SupprimerAccent) {
-            $valeur = $this->sansAccent($valeur);
-        }
-
-        // Réduction des espaces multiples à un seul espace
-        if ($this->SupprimerEspaceSuperflu) {
-            $valeur = preg_replace('/\s+/u', ' ', $valeur) ?? $valeur;
-        }
-
-        // Transformation de la casse
-        return match ($this->Casse) {
-            TextCase::Upper => mb_strtoupper($valeur, 'UTF-8'),
-            TextCase::Lower => mb_strtolower($valeur, 'UTF-8'),
-            TextCase::Word => mb_convert_case(
-                mb_strtolower($valeur, 'UTF-8'),
-                MB_CASE_TITLE,
-                'UTF-8'
-            ),
-            TextCase::First => $this->mettrePremiereLettreEnMajuscule($valeur),
-            TextCase::None => $valeur,
-        };
-    }
-
-    /**
-     * Contrôle la validité de la valeur.
-     */
-    public function checkValidity(): bool
-    {
-        // Appel du parent qui exécute $this->sanitize($this->Value) et vérifie Required
-        if (!parent::checkValidity()) {
-            return false;
-        }
-
-        // Une valeur facultative peut rester vide
-        if ($this->Value === null || $this->Value === '') {
-            return true;
-        }
-
-        // $this->Value est déjà nettoyée et normalisée
-        $valeur = (string)$this->Value;
-
-        // Vérification de l'expression régulière
-        if ($this->Pattern !== null) {
-            $pattern = $this->getPcrePattern($this->Pattern);
-
-            if ($pattern === '' || @preg_match($pattern, '') === false) {
-                $this->validationMessage = 'Le format de validation est invalide.';
-                return false;
-            }
-
-            if (@preg_match($pattern, $valeur) !== 1) {
-                $this->validationMessage = "La valeur transmise n'est pas valide.";
-                return false;
-            }
-        }
-
-        // Vérification de la longueur minimale
-        $nbCar = mb_strlen($valeur, 'UTF-8');
-
-        if ($this->MinLength !== null && $nbCar < $this->MinLength) {
-            $this->validationMessage =
-                "Veuillez allonger ce texte pour qu'il comporte au moins "
-                . $this->MinLength
-                . " caractères. Il en compte actuellement "
-                . $nbCar
-                . '.';
-
-            return false;
-        }
-
-        // Vérification de la longueur maximale
-        if ($this->MaxLength !== null && $nbCar > $this->MaxLength) {
-            $this->validationMessage =
-                "Veuillez réduire ce texte afin de ne pas dépasser "
-                . $this->MaxLength
-                . ' caractères.';
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Retourne une expression PCRE valide.
      */
     private function getPcrePattern(string $pattern): string
@@ -216,6 +119,92 @@ class ColumnText extends Column
             'ASCII//TRANSLIT//IGNORE',
             $valeur
         ) ?: $valeur;
+    }
+
+    /**
+     * Contrôle la validité de la valeur.
+     */
+    public function checkValidity(): bool
+    {
+        if (!parent::checkValidity()) {
+            return false;
+        }
+
+        // Une valeur facultative peut rester vide.
+        if ($this->Value === null || $this->Value === '') {
+            return true;
+        }
+
+        $valeur = trim((string)$this->Value);
+
+        // Suppression éventuelle des accents.
+        if ($this->SupprimerAccent) {
+            $valeur = $this->sansAccent($valeur);
+        }
+
+        // Réduction des espaces multiples à un seul espace.
+        if ($this->SupprimerEspaceSuperflu) {
+            $valeur = preg_replace('/\s+/u', ' ', $valeur) ?? $valeur;
+        }
+
+        // Transformation éventuelle de la casse.
+        $valeur = match ($this->Casse) {
+            TextCase::Upper => mb_strtoupper($valeur, 'UTF-8'),
+            TextCase::Lower => mb_strtolower($valeur, 'UTF-8'),
+            TextCase::Word => mb_convert_case(
+                mb_strtolower($valeur, 'UTF-8'),
+                MB_CASE_TITLE,
+                'UTF-8'
+            ),
+            TextCase::First => $this->mettrePremiereLettreEnMajuscule($valeur),
+            TextCase::None => $valeur,
+        };
+
+        // Vérification de l'expression régulière.
+        if ($this->Pattern !== null) {
+            $pattern = $this->getPcrePattern($this->Pattern);
+
+            if ($pattern === '' || @preg_match($pattern, '') === false) {
+                $this->validationMessage =
+                    'Le format de validation est invalide.';
+                return false;
+            }
+
+            if (@preg_match($pattern, $valeur) !== 1) {
+                $this->validationMessage =
+                    "La valeur transmise n'est pas valide.";
+                return false;
+            }
+        }
+
+        // Vérification de la longueur minimale.
+        $nbCar = mb_strlen($valeur, 'UTF-8');
+
+        if ($this->MinLength !== null && $nbCar < $this->MinLength) {
+            $this->validationMessage =
+                "Veuillez allonger ce texte pour qu'il comporte au moins "
+                . $this->MinLength
+                . " caractères. Il en compte actuellement "
+                . $nbCar
+                . '.';
+
+            return false;
+        }
+
+        // Vérification de la longueur maximale.
+        if ($this->MaxLength !== null && $nbCar > $this->MaxLength) {
+            $this->validationMessage =
+                "Veuillez réduire ce texte afin de ne pas dépasser "
+                . $this->MaxLength
+                . ' caractères.';
+
+            return false;
+        }
+
+        // Conservation de la valeur normalisée.
+        $this->Value = $valeur;
+
+        return true;
     }
 
     /**

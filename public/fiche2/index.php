@@ -1,16 +1,12 @@
 <?php
 declare(strict_types=1);
 
-use ClasseMetier\Etudiant;
 use ClasseTechnique\Page;
 
 /** @noinspection PhpIncludeInspection */
 require $_SERVER['DOCUMENT_ROOT'] . "/../bootstrap/bootstrap.php";
 
-
-// alimentation et affichage de l'interface
+// aucune donnée à transmettre : la source de l'autocomplétion est alimentée par AJAX
 $page = new Page();
-$page->setTitre("Fiche étudiant")
-    ->avecJeton()
+$page->setTitre("Fiche d'un étudiant ")
     ->afficher();
-

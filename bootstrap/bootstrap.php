@@ -31,9 +31,6 @@ define('DOSSIER_RACINE', dirname(DOSSIER_WWW));
 // Répertoire contenant les fichiers de configuration
 define('DOSSIER_CONFIG', DOSSIER_RACINE . DIRECTORY_SEPARATOR . 'config');
 
-// constantes.php pour les dossiers comprenant des resources externes
-const DOSSIER_PHOTO_ETUDIANT = DOSSIER_WWW . '/data/photo/';
-
 
 // ==========================================================
 // Chargement automatique des classes
@@ -48,19 +45,4 @@ require DOSSIER_RACINE . '/vendor/autoload.php';
 
 Erreur::installerGestionnaire();
 
-// ==========================================================
-// Chargement des contraintes SQL
-// ==========================================================
 
-try {
-
-    $contraintes = Config::chargerPhp('contrainte');
-
-    Erreur::definirLesContraintes($contraintes);
-
-} catch (Exception $e) {
-
-    // Pas de contrainte configurée
-    // ou configuration absente :
-    // on laisse l'application démarrer.
-}

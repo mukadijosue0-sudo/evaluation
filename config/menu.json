@@ -52,10 +52,6 @@
           "href": "/majoption"
         },
         {
-          "label": "Gérer les photos",
-          "href": "/photo"
-        },
-        {
           "label": "Suppression d'un étudiant",
           "href": "/suppression"
         }

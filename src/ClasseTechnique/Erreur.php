@@ -5,6 +5,7 @@ namespace ClasseTechnique;
 
 use PDOException;
 use Throwable;
+use JetBrains\PhpStorm\NoReturn;
 
 /**
  * Classe Erreur : gestion centralisée des erreurs applicatives et SQL.
@@ -16,8 +17,8 @@ use Throwable;
  *   • Tout autre Throwable → message générique
  *
  * @author Guy Verghote
- * @Version 2026.5
- * @Date : 17/09/2026
+ * @Version 2026.4
+ * @Date : 28/08/2026
  */
 enum TypeReponse: string
 {
@@ -117,11 +118,14 @@ class Erreur
             $message = $e->getMessage();
             $codeHttp = $e->getCodeHttp();
         } elseif ($e instanceof PDOException) {
-            [$message, $codeHttp, $doitJournaliser] = self::resoudreMessageSQL($e);
+            /*
+             * Une erreur SQL est technique :
+             * elle doit être journalisée.
+             */
+            self::journaliser($e);
 
-            if ($doitJournaliser) {
-                self::journaliser($e);
-            }
+            $message = self::resoudreMessageSQL($e);
+            $codeHttp = 500;
         } else {
             /*
              * Toute autre exception est considérée
@@ -145,109 +149,48 @@ class Erreur
         Journal::enregistrer($detail, 'erreur');
     }
 
-    private static function resoudreMessageSQL(PDOException $e): array
+    /**
+     * Résout un message lisible à partir d'une PDOException.
+     *
+     * PDO fournit errorInfo : [SQLSTATE, driverCode, driverMessage]
+     *
+     * Ordre de résolution :
+     *  SQLSTATE '45000' => message fourni par un SIGNAL SQL
+     *  Contrainte applicative définie dans config/contraintes.php
+     *  Contrainte CHECK générique
+     *  Code SQL connu dans $lesCodesSql
+     *  Message système générique
+     */
+    private static function resoudreMessageSQL(PDOException $e): string
     {
         $errorInfo = $e->errorInfo ?? [];
         [$sqlState, $codeErreur, $message] = array_pad($errorInfo, 3, null);
 
-        // 1) SIGNAL SQL métier explicite
+        // Les triggers SQL peuvent renvoyer un message métier explicite
         if ($sqlState === '45000') {
-            return [(string)$message, 400, false];
+            return (string)$message;
         }
 
-        // 2) Contrainte applicative configurée (nom explicite de contrainte)
+        // Recherche d'une contrainte applicative configurée
         if (is_string($message)) {
             foreach (self::$lesContraintes as $nom => $libelle) {
                 if (str_contains($message, $nom)) {
-                    return [$libelle, 400, false];
+                    return $libelle;
                 }
             }
         }
 
-        // 2bis) Cas particulier MySQL doublon PK => key 'PRIMARY'
-        // Permet un message spécifique par table via des clés de config :
-        //  - primary@coureur
-        //  - primary@categorie
-        //  - primary (fallback)
-        if ((int)$codeErreur === 1062 && is_string($message)) {
-            $table = self::extraireTableDepuisMessageDoublon($message);
-
-            if ($table !== null) {
-                $cleTable = 'primary@' . strtolower($table);
-                if (isset(self::$lesContraintes[$cleTable])) {
-                    return [self::$lesContraintes[$cleTable], 400, false];
-                }
-            }
-
-            $messagePrimaire = self::resoudreMessagePrimaryParContexte();
-            if ($messagePrimaire !== null) {
-                return [$messagePrimaire, 400, false];
-            }
-
-            if (isset(self::$lesContraintes['primary'])) {
-                return [self::$lesContraintes['primary'], 400, false];
-            }
-        }
-
-        // 3) CHECK générique
+        // Gestion des CHECK
         if (self::estErreurCheckConstraint($codeErreur, $message)) {
-            return ["Une valeur saisie ne respecte pas une règle de validation.", 400, false];
+            return "Une valeur saisie ne respecte pas une règle de validation.";
         }
 
-        // 4) Code SQL connu
+        // Gestion des erreurs SQL connues
         if (isset(self::$lesCodesSql[(int)$codeErreur])) {
-            return [self::$lesCodesSql[(int)$codeErreur], 400, false];
+            return self::$lesCodesSql[(int)$codeErreur];
         }
 
-        // 5) Cas non identifié
-        return [self::MSG_SYSTEME, 500, true];
-    }
-
-    /**
-     * Résout un message PRIMARY spécifique en s'appuyant sur l'URL courante.
-     * Exemple : /coureur/maj/ajax/ajouter.php => primary@coureur
-     */
-    private static function resoudreMessagePrimaryParContexte(): ?string
-    {
-        $uri = $_SERVER['REQUEST_URI'] ?? '';
-        if (!is_string($uri) || $uri === '') {
-            return null;
-        }
-
-        if (preg_match('#/([a-z0-9_-]+)/#i', $uri, $m) === 1 && isset($m[1])) {
-            $cleTable = 'primary@' . strtolower($m[1]);
-            if (isset(self::$lesContraintes[$cleTable])) {
-                return self::$lesContraintes[$cleTable];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Extrait le nom de table d'un message MySQL 1062.
-     * Exemples gérés :
-     *  - "Duplicate entry 'x' for key 'PRIMARY'" (pas de table)
-     *  - "Duplicate entry 'x' for key 'gestion.coureur.PRIMARY'"
-     */
-    private static function extraireTableDepuisMessageDoublon(string $message): ?string
-    {
-        if (
-            preg_match("/for key '([^']+)'/i", $message, $m) !== 1
-            || !isset($m[1])
-        ) {
-            return null;
-        }
-
-        $key = $m[1]; // ex: PRIMARY ou gestion.coureur.PRIMARY
-        $segments = explode('.', $key);
-
-        if (count($segments) >= 3) {
-            // db.table.index
-            return $segments[count($segments) - 2];
-        }
-
-        return null;
+        return self::MSG_SYSTEME;
     }
 
     /**
@@ -273,7 +216,7 @@ class Erreur
     private static function rendreReponse(string $message, int $codeHttp): void
     {
         // Si une partie de la page a déjà été générée, elle est encore dans le buffer grâce à ob_start().
-        // On la supprime afin que la réponse d'erreur soit propre.
+        //  On la supprime afin que la réponse d'erreur soit propre.
         while (ob_get_level() > 0) {
             ob_end_clean();
         }
@@ -312,6 +255,7 @@ class Erreur
         return TypeReponse::HTML;
     }
 
+
     /**
      * Retourne un libellé lisible pour un code HTTP donné.
      */
@@ -337,3 +281,4 @@ class Erreur
         return $libelles[$codeHttp] ?? "Erreur HTTP : " . $codeHttp;
     }
 }
+

@@ -8,6 +8,6 @@ require $_SERVER['DOCUMENT_ROOT'] . "/../bootstrap/bootstrap.php";
 
 // alimentation et affichage de l'interface
 $page = new Page();
-$page->setTitre("Gestion des photos des étudiants")
+$page->setTitre("La consultation et la recherche des données")
     ->afficher();
 

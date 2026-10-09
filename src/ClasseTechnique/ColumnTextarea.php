@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace ClasseTechnique;
 
 /**
- * Classe ColumnTextarea : contrôle et nettoie une chaîne de caractères multiligne.
+ * Classe ColumnTextarea : contrôle une chaîne de caractères multiligne.
  *
  * @author Guy Verghote
- * @version 2026.3
- * @date 22/09/2026
+ * @version 2026.2
+ * @date 12/08/2026
  */
 class ColumnTextarea extends Column
 {
@@ -56,53 +56,45 @@ class ColumnTextarea extends Column
     }
 
     /**
-     * Nettoie et filtre le contenu HTML avant validation.
-     * Cette méthode est appelée automatiquement par parent::checkValidity().
-     */
-    public function sanitize(mixed $value): mixed
-    {
-        if ($value === null || !is_string($value)) {
-            return $value;
-        }
-
-        // 1. Décodage des entités HTML (ex: transforme &lt;iframe&gt; en <iframe> réel)
-        // pour que strip_tags et Std::nettoyerHtml puissent repérer la balise.
-        $valeur = html_entity_decode((string)$value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-        // 2. Nettoyage générique du HTML (suppression des scripts, XSS, etc.)
-        $valeur = Std::nettoyerHtml($valeur);
-
-        // 3. Encodage complet si demandé (ex: pour du texte brut)
-        if ($this->EncoderHtml) {
-            return htmlspecialchars(
-                $valeur,
-                ENT_QUOTES,
-                'UTF-8'
-            );
-        }
-
-        // 4. Suppression des balises non autorisées si le HTML est restreint
-        if (!$this->AcceptHtml) {
-            return strip_tags(
-                $valeur,
-                $this->BalisesAutorisees
-            );
-        }
-
-        return $valeur;
-    }
-
-    /**
      * Vérifie la validité du contenu multiligne.
      */
     public function checkValidity(): bool
     {
-        // Appel du parent qui exécute $this->sanitize($this->Value) et vérifie Required
         if (!parent::checkValidity()) {
             return false;
         }
 
-        // La valeur a déjà été nettoyée et assignée par parent::checkValidity()
+        // Une valeur facultative peut rester vide.
+        if ($this->Value === null || $this->Value === '') {
+            return true;
+        }
+
+        $valeur = (string)$this->Value;
+
+        // Encodage complet du contenu HTML.
+        if ($this->EncoderHtml) {
+            $this->Value = htmlspecialchars(
+                $valeur,
+                ENT_QUOTES,
+                'UTF-8'
+            );
+
+            return true;
+        }
+
+        // Suppression des balises HTML non autorisées.
+        if (!$this->AcceptHtml) {
+            $this->Value = strip_tags(
+                $valeur,
+                $this->BalisesAutorisees
+            );
+
+            return true;
+        }
+
+        // Le contenu HTML est conservé tel quel.
+        $this->Value = $valeur;
+
         return true;
     }
 }

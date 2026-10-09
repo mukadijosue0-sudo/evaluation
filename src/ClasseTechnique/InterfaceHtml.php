@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ClasseTechnique;
 
+
 /**
  * Construction des éléments HTML d'une page.
  *
@@ -16,15 +17,14 @@ namespace ClasseTechnique;
  *  le menu vertical ;
  *  le menu horizontal du module ;
  *  le template HTML de la page ;
- *  le CSS associé à la page ;
  *  le JavaScript associé à la page ;
  *  les ressources déclarées dans Page ;
  *  les données JavaScript ;
  *  le token CSRF.
  *
  * @author Guy Verghote
- * @version 2026.2
- * @date 25/09/2026
+ * @version 2026.1
+ * @date 11/08/2026
  */
 class InterfaceHtml
 {
@@ -36,10 +36,12 @@ class InterfaceHtml
      */
     private string $repertoirePage;
 
+
     /**
      * Nom de la page sans extension.
      */
     private string $nomPage;
+
 
     public function __construct(Page $page)
     {
@@ -48,23 +50,25 @@ class InterfaceHtml
         $this->nomPage = pathinfo($_SERVER['PHP_SELF'], PATHINFO_FILENAME);
     }
 
+
     /**
      * Génère le contenu du head HTML.
      */
     public function head(): string
     {
         return implode("\n", [
+
             $this->csrf(),
             $this->bootstrap(),
             $this->menuVertical(),
             $this->menuHorizontal(),
             $this->styles(),
-            $this->stylePage(),
             $this->scripts(),
             $this->scriptPage(),
             $this->donnees()
         ]);
     }
+
 
     /**
      * Génère l'entête commun.
@@ -74,6 +78,7 @@ class InterfaceHtml
         return $this->chargerFragment(DOSSIER_RACINE . '/view/header.php', ['page' => $this->page]);
     }
 
+
     /**
      * Génère le contenu spécifique de la page.
      */
@@ -82,6 +87,7 @@ class InterfaceHtml
         return $this->chargerFragment($this->repertoirePage . '/' . $this->nomPage . '.html');
     }
 
+
     /**
      * Génère le pied de page commun.
      */
@@ -89,6 +95,7 @@ class InterfaceHtml
     {
         return $this->chargerFragment(DOSSIER_RACINE . '/view/footer.php');
     }
+
 
     /**
      * Génération du token CSRF.
@@ -101,6 +108,7 @@ class InterfaceHtml
 
         return sprintf('<meta name="csrf-token" content="%s">', Jeton::creer());
     }
+
 
     /**
      * Ressources Bootstrap.
@@ -124,18 +132,6 @@ HTML;
             $html .= sprintf('<link rel="stylesheet" href="%s">', $style);
         }
         return $html;
-    }
-
-    /**
-     * Feuille de style CSS associée automatiquement à la page.
-     */
-    private function stylePage(): string
-    {
-        $fichier = $this->repertoirePage . '/' . $this->nomPage . '.css';
-        if (!is_file($fichier)) {
-            return '';
-        }
-        return sprintf('<link rel="stylesheet" href="%s?t=%s">', basename($fichier), filemtime($fichier));
     }
 
     /**
