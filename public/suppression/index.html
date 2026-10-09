@@ -1,0 +1,38 @@
+<div class="page-card">
+    <div class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Suppression d'un étudiant
+            </h1>
+        </div>
+    </div>
+    <div class="page-body">
+        <div id="msg"></div>
+        <div id="lesCartes"></div>
+    </div>
+</div>
+
+<template id="tplCarteEtudiant">
+    <div class="carte-etudiant">
+
+        <div class="card-header text-center carte-header">
+            <span class="nom-etudiant">
+                <span class="nom"></span>
+                <span class="prenom"></span>
+            </span>
+
+            <button
+                    class="btn-supprimer"
+                    type="button"
+                    title="Supprimer l'étudiant"
+                    aria-label="Supprimer l'étudiant">
+                ×
+            </button>
+        </div>
+
+        <div class="carte-body">
+            <img class="carte-img" src="" alt="">
+        </div>
+
+    </div>
+</template>

@@ -1,0 +1,72 @@
+/* ====== Menu horizontal ====== */
+#menuHorizontal {
+    background-color: #ffffff;
+    padding: 4px 6px;
+    margin: 0;                      /* supprime la marge gauche */
+    margin-left: 6px;          /* décale le menu vers la droite */
+    margin-right: 6px;
+    border-radius: 0;               /* pleine largeur = pas besoin d’arrondi global */
+    max-width: 100%;
+}
+
+/* ====== Liste ====== */
+#menuHorizontal ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;        /* ou "flex-start" si tu veux aligner à gauche */
+    gap: 4px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+/* ====== Éléments du menu ====== */
+#menuHorizontal li {
+    flex: 0 0 auto;
+    text-align: center;
+    background-color: #d2e3f3;      /* bleu clair pour les items inactifs */
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+/* Effet au survol */
+#menuHorizontal li:hover {
+    background-color: #b9d3f0;
+    transform: translateY(-2px);
+}
+
+/* ====== Liens ====== */
+#menuHorizontal a {
+    display: inline-block;
+    text-decoration: none;
+    font-style: italic;
+    color: #0a2e75;
+    font-size: 0.78rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 0.3rem 0.45rem;
+    white-space: nowrap;
+    line-height: 1.1;
+}
+
+/* ====== Élément actif ====== */
+#menuHorizontal li.actif {
+    background-color: #e63946 !important;    /* rouge corail vif */
+}
+
+#menuHorizontal li.actif a {
+    color: #ffffff;                 /* texte blanc sur fond rouge */
+    font-weight: 600;
+}
+
+/* ====== Survol des liens ====== */
+#menuHorizontal a:hover {
+    color: #1a73e8;
+}

@@ -1,0 +1,71 @@
+<link rel="stylesheet" href="/css/recherche.css">
+<link rel="stylesheet" href="/css/autocomplete.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.10/dist/autoComplete.min.js"></script>
+
+<div class="page-card">
+    <header class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Fiche d'un étudiant (Version 2)
+            </h1>
+        </div>
+        <div class="page-header-filters">
+            <div class="zone-recherche recherche-autocomplete">
+                <!-- Ajout de la classe 'afficher' si tu veux que le label soit visible -->
+                <label for="search" >
+                    Nom de l'étudiant
+                </label>
+                <div class="champ-recherche">
+                    <div class="input-recherche">
+                        <div class="autoComplete_wrapper">
+                            <input
+                                    id="search"
+                                    type="text"
+                                    placeholder="Saisir les premières lettres du nom"
+                                    autocomplete="off">
+                        </div>
+                        <span class="icone-recherche" aria-hidden="true">⌕</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="page-body">
+        <section class="bloc-info">
+            <h2>👤 Identité</h2>
+            <div class="champ">
+                <span>Nom</span>
+                <output id="nom" class="champ-sortie"></output>
+            </div>
+            <div class="champ">
+                <span>Prénom</span>
+                <output id="prenom" class="champ-sortie"></output>
+            </div>
+            <div class="champ">
+                <span>Sexe</span>
+                <output id="sexe" class="champ-sortie"></output>
+            </div>
+            <div class="champ">
+                <span>Né(e) le</span>
+                <output id="dateNaissance" class="champ-sortie"></output>
+            </div>
+        </section>
+
+        <section class="bloc-info">
+            <h2>🏆 Informations administratives</h2>
+            <div class="champ">
+                <span>Âge</span>
+                <output id="age" class="champ-sortie"></output>
+            </div>
+            <div class="champ">
+                <span>Option</span>
+                <output id="libelleCourt" class="champ-sortie"></output>
+            </div>
+            <div class="champ">
+                <span>Photo</span>
+                <output id="photo" class="champ-sortie" style="height: 150px; width: 150px; justify-content: center;"></output>
+            </div>
+        </section>
+    </div>
+</div>

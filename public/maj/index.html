@@ -1,0 +1,82 @@
+<link rel="stylesheet" href="/css/recherche.css">
+<link rel="stylesheet" href="/css/autocomplete.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.10/dist/autoComplete.min.js"></script>
+
+<div class="page-card">
+    <header class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Modification des informations signalétiques d'un étudiant
+            </h1>
+        </div>
+        <div class="page-header-filters">
+            <div class="zone-recherche recherche-autocomplete">
+                <label for="search">
+                    Nom de l'étudiant
+                </label>
+                <div class="champ-recherche">
+                    <div class="input-recherche">
+                        <div class="autoComplete_wrapper">
+                            <input
+                                    id="search"
+                                    type="text"
+                                    placeholder="Saisir les premières lettres du nom"
+                                    autocomplete="off">
+                        </div>
+                        <span class="icone-recherche" aria-hidden="true">⌕</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div id="msg"></div>
+    <div class="page-body">
+        <div id="zoneSaisie" style="visibility: hidden">
+            <section class="bloc-info" style="max-width: 600px; justify-self: start; width: 100%;">
+                <h2>👤 Identité</h2>
+                <div class="champ">
+                    <label for="nom" class="obligatoire">
+                        Nom
+                    </label>
+                    <input id="nom"
+                           type="text"
+                           required
+                           maxlength="20"
+                           pattern="^[A-Za-zÀÂÄÆÇÈÉÊËÎÏÔŒÙÛÜŸàâäæçèéêëîïôœùûüÿ]+([ '\-][A-Za-zÀÂÄÆÇÈÉÊËÎÏÔŒÙÛÜŸàâäæçèéêëîïôœùûüÿ]+)*$"
+                           title="Caractères autorisés : lettres, avec éventuellement des espaces, tirets ou apostrophes, mais jamais à la suite ou au début/fin."
+                           autocomplete="off">
+                </div>
+                <div class="champ">
+                    <label for="prenom" class="obligatoire">
+                        Prénom
+                    </label>
+                    <input id="prenom"
+                           type="text"
+                           required
+                           pattern="^[A-Za-zÀÂÄÆÇÈÉÊËÎÏÔŒÙÛÜŸàâäæçèéêëîïôœùûüÿ]+([ '\-][A-Za-zÀÂÄÆÇÈÉÊËÎÏÔŒÙÛÜŸàâäæçèéêëîïôœùûüÿ]+)*$"
+                           title="Caractères autorisés : lettres, avec éventuellement des espaces, tirets ou apostrophes, mais jamais à la suite ou au début/fin."
+                           maxlength="20"
+                           minlength="3"
+                           autocomplete="off">
+                </div>
+                <div class="champ">
+                    <label for="sexe">Sexe</label>
+                    <select id="sexe" style="display: block; width: 180px;">
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+                <div class="champ">
+                    <label for="dateNaissance">Date de naissance</label>
+                    <input id="dateNaissance" type="date" style="display: block" required>
+                </div>
+
+                <div class="d-flex justify-content-evenly">
+                    <button id="btnModifier" class="btn btn-sm btn-outline-danger">Enregistrer les modifications
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

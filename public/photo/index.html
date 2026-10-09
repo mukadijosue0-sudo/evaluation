@@ -1,0 +1,52 @@
+<div class="page-card">
+    <div class="page-header">
+        <div class="page-header-top">
+            <h1 class="page-title">
+                Gestion des photos des étudiants
+            </h1>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div id='msg' class="erreur"></div>
+        <input type="file" id="fichier" accept=".jpg, .jpeg, .png, .webp, .avif" hidden>
+        <div class="consigne-photo" role="note">
+            <span class="consigne-photo-icone" aria-hidden="true">ⓘ</span>
+            <p>
+                Cliquez sur la photo d’un étudiant pour la modifier, ou cliquez sur × pour supprimer la photo.
+            </p>
+        </div>
+        <div id="lesCartes"></div>
+    </div>
+</div>
+
+
+<template id="tplCarteEtudiant">
+    <div class="carte-etudiant">
+        <div class="carte-header">
+            <span class="nom-etudiant">
+                <span class="nom"></span>
+                <span class="prenom"></span>
+            </span>
+        </div>
+        <div class="carte-body">
+            <div class="cible-photo">
+                <img class="carte-img" alt="Photo de l'étudiant" hidden>
+
+                <div class="photo-vide">
+                    <span>Cliquer pour ajouter une photo</span>
+                </div>
+                <button
+                        class="btn-supprimer-photo"
+                        type="button"
+                        title="Supprimer la photo"
+                        aria-label="Supprimer la photo"
+                        hidden>
+                    ×
+                </button>
+
+            </div>
+        </div>
+    </div>
+</template>
+

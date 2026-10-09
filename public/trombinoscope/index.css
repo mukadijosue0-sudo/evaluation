@@ -1,0 +1,49 @@
+/* Conteneur des cartes */
+#lesCartes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-start;
+}
+
+/* Carte étudiant */
+.carte-etudiant {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: 120px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* En-tête de la carte */
+.carte-header {
+    height: 55px;
+    padding: 0.35rem;
+    background-color: var(--entete-bg-start);
+    color: #ffffff;
+    font-size: 0.5rem;
+    line-height: 1.1;
+}
+
+/* Corps de la carte */
+.carte-body {
+    height: 55px;
+    padding: 0.25rem;
+}
+
+/* Image de l'étudiant */
+.carte-img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0 auto;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Adaptation des cartes sur petit écran */
+@media screen and (max-width: 600px) {
+    .carte-etudiant {
+        flex-basis: 120px;
+    }
+}
